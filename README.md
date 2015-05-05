@@ -6,7 +6,7 @@ Cumulus is a **free**, open-source replacement for [CloudApp](http://www.getclou
 ![Screenshot](https://raw.github.com/nrj/Cumulus/master/Screenshots/settings.png)
 
 # Download
-You can download the latest, pre-built version here: [Cumulus.dmg](https://raw.github.com/nrj/Cumulus/master/Builds/Cumulus-0.1.dmg)
+You can download the latest, pre-built version [here](https://raw.github.com/nrj/Cumulus/master/Builds/Cumulus.dmg)
 
 # Building
 You can build Cumulus yourself if you have the latest version of [Xcode](https://itunes.apple.com/us/app/xcode/id497799835?mt=12) and [Cocoapods](http://cocoapods.org).
