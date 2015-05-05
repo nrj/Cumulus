@@ -8,6 +8,7 @@
 
 #import "CUSettings.h"
 
+NSString * const CUSettingsErrorDomain        = @"io.nrj.cumulus.error";
 NSString * const CUSecretAccessKeyServiceName = @"s3.amazonaws.com";
 
 @implementation CUSettings
@@ -28,9 +29,56 @@ NSString * const CUSecretAccessKeyServiceName = @"s3.amazonaws.com";
 #pragma mark -
 #pragma mark Getters
 
-- (BOOL)appearToBeValid {
- 
-    return [[self bucketName] length] && [[self accessKey] length] && [[self secretAccessKey] length];
+- (NSError *)errorCheck {
+    
+    NSString *errorMessage = nil;
+    NSMutableArray *missingSettings = [NSMutableArray array];
+    NSDictionary *requiredSettings = [NSDictionary dictionaryWithObjectsAndKeys:
+                                      @"accessKey", @"Access Key",
+                                      @"secretAccessKey", @"Secret Access Key",
+                                      @"bucketName", @"Bucket Name", nil];
+    
+    for (NSString *key in [requiredSettings allKeys]) {
+
+        SEL selector = NSSelectorFromString([requiredSettings objectForKey:key]);
+        IMP imp = [self methodForSelector:selector];
+        NSString *(*func)(id, SEL) = (void *)imp;
+        NSString *value = func(self, selector);
+
+        if ([value length] == 0) {
+
+            [missingSettings addObject:key];
+        }
+    }
+    
+    if ([missingSettings count] > 0) {
+    
+        errorMessage = [NSString stringWithFormat:@"The following settings are missing: %@.",
+                        [missingSettings componentsJoinedByString:@", "]];
+    }
+    else if ([self isVirtuallyHosted]) {
+            
+        NSCharacterSet *disallowed = [[NSCharacterSet URLHostAllowedCharacterSet] invertedSet];
+        NSString *bucketName = [self bucketName];
+        NSRange badCharacters = [bucketName rangeOfCharacterFromSet:disallowed];
+        NSRange dotRange = [bucketName rangeOfString:@"."];
+        NSInteger length = [bucketName length];
+
+        if ((badCharacters.location != NSNotFound) || (dotRange.location == NSNotFound || dotRange.location < 1 || length < 5)) {
+
+            errorMessage = @"Bucket name is not DNS-compatible (required for Virtual Hosting).";
+        }
+    }
+    
+    NSError *error = nil;
+
+    if (errorMessage) {
+    
+        error = [NSError errorWithDomain:CUSettingsErrorDomain code:-1 userInfo:
+                 [NSDictionary dictionaryWithObject:errorMessage forKey:NSLocalizedDescriptionKey]];
+    }
+    
+    return error;
 }
 
 - (NSString *)accessKey {

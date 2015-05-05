@@ -19,7 +19,7 @@
 
 + (instancetype)sharedInstance;
 
-- (BOOL)appearToBeValid;
+- (NSError *)errorCheck;
 
 - (void)setAccessKey:(NSString *)accessKey secretAccessKey:(NSString *)secretAccessKey;
 - (NSString *)accessKey;

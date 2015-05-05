@@ -12,6 +12,8 @@
 
 #import "CUSettings.h"
 
+NSString * const CUErrorDomain = @"io.nrj.cumulus.error";
+
 @implementation AppDelegate
 
 @synthesize window;
@@ -20,6 +22,7 @@
 @synthesize bucketNameField;
 @synthesize virtuallyHostedCheckbox;
 @synthesize checkSettingsButton;
+@synthesize progressIndicator;
 
 @synthesize query;
 @synthesize uploadQueue;
@@ -47,10 +50,11 @@
     [virtuallyHostedCheckbox setState:[settings isVirtuallyHosted] ? NSOnState : NSOffState];
 
 #ifdef DEBUG
+    [NSApp activateIgnoringOtherApps:YES];
     [[self window] makeKeyAndOrderFront:nil];
 #else
     if (![settings appearToBeValid]) {
- 
+        [NSApp activateIgnoringOtherApps:YES];
         [[self window] makeKeyAndOrderFront:nil];
     }
 #endif
@@ -58,6 +62,7 @@
 
 - (BOOL)applicationShouldHandleReopen:(NSApplication *)theApplication hasVisibleWindows:(BOOL)flag {
     
+    [NSApp activateIgnoringOtherApps:YES]; 
     [[self window] makeKeyAndOrderFront:nil];
     
     return YES;
@@ -79,8 +84,21 @@
     
         if ([[NSFileManager defaultManager] fileExistsAtPath:screenshotFilePath isDirectory:nil]) {
 
-            [self commitSettingsIfNeeded];
-            [self uploadScreenshotAtFilePath:screenshotFilePath];
+            [self uploadScreenshotAtFilePath:screenshotFilePath completion:^(NSString *URL, NSString *errorMessage) {
+                
+                if (URL && !errorMessage) {
+                    
+                    NSPasteboard *pb = [NSPasteboard generalPasteboard];
+                    [pb declareTypes:[NSArray arrayWithObjects:NSStringPboardType, nil] owner:self];
+                    [pb setString:URL forType:NSStringPboardType];
+                    
+                    [self displayNotificationWithTitle:@"Screenshot Uploaded" body:@"Link copied to clipboard." URL:URL success:YES];
+                }
+                else if (errorMessage) {
+                    
+                    [self displayNotificationWithTitle:@"Screenshot Upload Failure" body:errorMessage URL:nil success:NO];
+                }
+            }];
         }
     }
 }
@@ -88,11 +106,17 @@
 #pragma mark -
 #pragma mark Upload
 
-- (void)uploadScreenshotAtFilePath:(NSString *)filePath {
-
+- (void)uploadScreenshotAtFilePath:(NSString *)filePath completion:(void (^)(NSString *URL, NSString *errorMessage))completion {
+    
+    [self commitSettingsIfNeeded];
+    
     // Check settings are at least populated
     CUSettings *settings = [CUSettings sharedInstance];
-    if (![settings appearToBeValid]) {
+    NSError *validationError = [settings errorCheck];
+    if (validationError) {
+        if (completion) {
+            completion(nil, [validationError localizedDescription]);
+        }
         return;
     }
     
@@ -146,32 +170,41 @@
     [operation setResponseSerializer:[AFXMLParserResponseSerializer new]];
     [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
         
-        NSString *URLToCopy;
-        if (!isVirtuallyHosted) {
-            URLToCopy = [NSString stringWithFormat:@"http://%@.s3.amazonaws.com/%@", bucketName, uploadFilename];
+        if (completion) {
+            
+            NSString *URLString;
+            if (!isVirtuallyHosted) {
+                
+                URLString = [NSString stringWithFormat:@"http://%@.s3.amazonaws.com/%@", bucketName, uploadFilename];
+            }
+            else {
+                
+                URLString = [NSString stringWithFormat:@"http://%@/%@", bucketName, uploadFilename];
+            }
+            
+            completion(URLString, nil);
         }
-        else {
-            URLToCopy = [NSString stringWithFormat:@"http://%@/%@", bucketName, uploadFilename];
-        }
-
-        NSPasteboard *pb = [NSPasteboard generalPasteboard];
-        [pb declareTypes:[NSArray arrayWithObjects:NSStringPboardType, nil] owner:self];
-        [pb setString:URLToCopy forType:NSStringPboardType];
-        
-        [self displayNotificationWithTitle:@"Screenshot Uploaded" body:@"Link copied to clipboard." URL:URLToCopy success:YES];
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         
-        NSInteger statusCode = [[operation response] statusCode];
-        NSString *errorMessage;
-        if (statusCode >= 400 && statusCode <= 499) {
-            errorMessage = @"Your S3 credentials appear to be invalid.";
+        if (completion) {
+            
+            NSHTTPURLResponse *response = [[error userInfo] objectForKey:AFNetworkingOperationFailingURLResponseErrorKey];
+            NSString *errorMessage;
+
+            if ([response statusCode] >= 400 && [response statusCode] <= 499) {
+             
+                errorMessage = @"Your S3 credentials appear to be invalid.";
+            }
+            else {
+                
+                errorMessage = [error localizedDescription];
+            }
+            
+            completion(nil, errorMessage);
         }
-        else {
-            errorMessage = [error localizedDescription];
-        }
-        [self displayNotificationWithTitle:@"Screenshot Upload Failure" body:errorMessage URL:nil success:NO];
     }];
+    
     [uploadQueue addOperation:operation];
 }
 
@@ -222,6 +255,52 @@
 #pragma mark -
 #pragma mark Settings
 
+- (IBAction)checkSettings:(id)sender {
+
+    if (!_isCheckingSettings) {
+        
+        [[self window] makeFirstResponder:nil];
+
+        NSArray *controls = [NSArray arrayWithObjects:
+                             accessKeyField,
+                             secretAccessKeyField,
+                             bucketNameField,
+                             virtuallyHostedCheckbox, nil];
+        
+        [progressIndicator startAnimation:nil];
+        for (NSControl *control in controls) {
+            [control setEnabled:NO];
+        }
+        _isCheckingSettings = YES;
+        
+        NSString *tempFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:@"._cumulus_test.bin"];
+        if (![[NSFileManager defaultManager] fileExistsAtPath:tempFilePath]) {
+            unsigned short int bytes[1] = {1};
+            NSData *data = [NSData dataWithBytes:bytes length:1];
+            [data writeToFile:tempFilePath atomically:YES];
+        }
+        
+        [self uploadScreenshotAtFilePath:tempFilePath completion:^(NSString *URL, NSString *errorMessage) {
+            
+            NSString *title = (errorMessage) ? @"Error" : @"Success";
+            NSString *message = (errorMessage) ?: @"You're good to go!";
+            NSAlert *alert = [NSAlert alertWithMessageText:title
+                                             defaultButton:@"OK"
+                                           alternateButton:nil
+                                               otherButton:nil
+                                 informativeTextWithFormat:@"%@", message];
+            
+            [alert beginSheetModalForWindow:[self window] completionHandler:nil];
+            
+            [progressIndicator stopAnimation:nil];
+            for (NSControl *control in controls) {
+                [control setEnabled:YES];
+            }
+            _isCheckingSettings = NO;
+        }];
+    }
+}
+
 - (void)controlTextDidChange:(NSNotification *)notification {
     
     NSTextField *textField = [notification object];
@@ -266,10 +345,6 @@
         
         _settingsDirty = NO;
     }
-}
-
-- (IBAction)checkSettings:(id)sender {
-    
 }
 
 - (IBAction)handleMoreAboutVirtualHostingLink:(id)sender {

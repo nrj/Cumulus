@@ -12,6 +12,7 @@
 @interface AppDelegate : NSObject <NSApplicationDelegate, NSUserNotificationCenterDelegate, NSMetadataQueryDelegate, NSWindowDelegate> {
 @private
     BOOL _settingsDirty;
+    BOOL _isCheckingSettings;
 }
 
 @property (weak) IBOutlet NSWindow *window;
@@ -20,6 +21,7 @@
 @property (weak) IBOutlet NSTextField *bucketNameField;
 @property (weak) IBOutlet NSButton *virtuallyHostedCheckbox;
 @property (weak) IBOutlet NSButton *checkSettingsButton;
+@property (weak) IBOutlet NSProgressIndicator *progressIndicator;
 
 @property (nonatomic, readonly) NSMetadataQuery *query;
 @property (nonatomic, readonly) NSOperationQueue *uploadQueue;
