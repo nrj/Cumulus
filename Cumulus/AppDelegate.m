@@ -57,11 +57,7 @@ NSString * const CUErrorDomain = @"io.nrj.cumulus.error";
         [NSApp activateIgnoringOtherApps:YES];
         [[self window] makeKeyAndOrderFront:nil];
     }
-#endif
-    
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [[self window] makeFirstResponder:nil];
-    });
+#endif    
 }
 
 - (BOOL)applicationShouldHandleReopen:(NSApplication *)theApplication hasVisibleWindows:(BOOL)flag {
