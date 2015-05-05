@@ -10,7 +10,7 @@ You can download the latest version [here](https://raw.github.com/nrj/Cumulus/ma
 
 # Change the default screenshot directory
 
-_This is optional._ By default OS X puts screenshots on your Desktop. But if you'd rather they go somewhere else then you can change the location in Terminal with the following commands:
+_This is optional._ By default OS X puts screenshots on your Desktop. But if you'd rather they go somewhere else you can change the location in Terminal with following:
 
     $ mkdir -p ~/Pictures/Screenshots
     $ defaults write com.apple.screencapture location ~/Pictures/Screenshots
