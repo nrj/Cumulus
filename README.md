@@ -8,7 +8,7 @@ Cumulus is a **free**, open-source replacement for [CloudApp](http://www.getclou
 # Download
 You can download the latest version [here](https://raw.github.com/nrj/Cumulus/master/Builds/Cumulus.dmg)
 
-# Changing the default screenshot directory
+# Change the default screenshot directory (optional)
 
 If you're like me and you don't like to have screenshots cluttering your Desktop, you can change the directory where OS X stores them. For example if you wanted to store them in say `~/Pictures/Screenshots` you can open Termain and issue the following commands:
 
