@@ -3,4 +3,4 @@ Cumulus is a **free**, open-source replacement for [CloudApp](http://www.getclou
 
 ![Screenshot](https://raw.github.com/nrj/Cumulus/master/Screenshots/notification.png)
 
-*Note: This app is still a work in progress. Check back soon!*
+![Screenshot](https://raw.github.com/nrj/Cumulus/master/Screenshots/settings.png)
