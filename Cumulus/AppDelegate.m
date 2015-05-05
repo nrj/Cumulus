@@ -53,11 +53,11 @@ NSString * const CUErrorDomain = @"io.nrj.cumulus.error";
     [NSApp activateIgnoringOtherApps:YES];
     [[self window] makeKeyAndOrderFront:nil];
 #else
-    if (![settings appearToBeValid]) {
+    if ([settings errorCheck] != nil) {
         [NSApp activateIgnoringOtherApps:YES];
         [[self window] makeKeyAndOrderFront:nil];
     }
-#endif    
+#endif
 }
 
 - (BOOL)applicationShouldHandleReopen:(NSApplication *)theApplication hasVisibleWindows:(BOOL)flag {
