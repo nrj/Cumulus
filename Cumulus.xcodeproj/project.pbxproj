@@ -200,6 +200,7 @@
 				TargetAttributes = {
 					0BA2B5EB1ADD6F1B006176A0 = {
 						CreatedOnToolsVersion = 6.3;
+						DevelopmentTeam = DWZ4KML84P;
 					};
 					0BA2B5FE1ADD6F1C006176A0 = {
 						CreatedOnToolsVersion = 6.3;
@@ -404,6 +405,7 @@
 			baseConfigurationReference = B423FF5562256AE6C3B7E37F /* Pods.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = Cumulus/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
@@ -417,6 +419,7 @@
 			baseConfigurationReference = 1A751237A2590E574A35A9A8 /* Pods.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = Cumulus/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
