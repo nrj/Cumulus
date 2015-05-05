@@ -6,21 +6,23 @@ Cumulus is a **free**, open-source replacement for [CloudApp](http://www.getclou
 ![Screenshot](https://raw.github.com/nrj/Cumulus/master/Screenshots/settings.png)
 
 # Download
-You can download the latest, pre-built version [here](https://raw.github.com/nrj/Cumulus/master/Builds/Cumulus.dmg)
+You can download the latest version [here](https://raw.github.com/nrj/Cumulus/master/Builds/Cumulus.dmg)
 
 # Building
-You can build Cumulus yourself if you have the latest version of [Xcode](https://itunes.apple.com/us/app/xcode/id497799835?mt=12) and [Cocoapods](http://cocoapods.org).
+If you you have the latest version of of [Xcode](https://itunes.apple.com/us/app/xcode/id497799835?mt=12) and [Cocoapods](http://cocoapods.org) you can build Cumulus yourself with the following steps:
 
-    git clone git@github.com:nrj/Cumulus.git
-    cd Cumulus
-    pod setup
-    pod install
-    open Cumulus.xcworkspace
+    $ git clone git@github.com:nrj/Cumulus.git
+    $ cd Cumulus
+    $ pod setup
+    $ pod install
+    $ open Cumulus.xcworkspace
     
-Build & Run.
+
+Then hit Build & Run.
 
 # Contributing
 
+If you would like to contribute to this project, please fork from the `master` branch and send me a pull request.
 
 # License
 
