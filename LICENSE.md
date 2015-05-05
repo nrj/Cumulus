@@ -1,4 +1,4 @@
-The MIT License (MIT)
+Cumulus is released under the MIT License (MIT)
 
 Copyright (c) 2015 Nick Jensen
 
@@ -20,3 +20,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
+Cloud icon is under the under the [Creative Commons License](http://creativecommons.org/licenses/by/3.0/legalcode)
+
+Copyright (c) 2015 [Aha-Soft Team](http://www.aha-soft.com/)
